@@ -1,0 +1,60 @@
+[gd_scene load_steps=6 format=3 uid="uid://bnsqumhgrfsrg"]
+
+[ext_resource type="ArrayMesh" uid="uid://ckv4o0xyttlmr" path="res://Assets/tabletennisbat.obj" id="1_ujeg1"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_nv1lr"]
+bounce = 0.29
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_li51x"]
+height = 0.02
+radius = 0.1
+
+[sub_resource type="GDScript" id="GDScript_kmcmn"]
+script/source = "extends XRController3D
+
+@onready var ball = get_node(\"../../../Ball\")
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(_delta):
+	pass
+"
+
+[sub_resource type="PrismMesh" id="PrismMesh_meo65"]
+size = Vector3(0.1, 0.08, 0.1)
+
+[node name="player" type="Node3D"]
+
+[node name="XROrigin3D" type="XROrigin3D" parent="."]
+
+[node name="XRCamera3D" type="XRCamera3D" parent="XROrigin3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+
+[node name="Main hand" type="XRController3D" parent="XROrigin3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 1, -0.5)
+tracker = &"right_hand"
+
+[node name="Paddle" type="AnimatableBody3D" parent="XROrigin3D/Main hand"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -1, 0.5)
+physics_material_override = SubResource("PhysicsMaterial_nv1lr")
+sync_to_physics = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="XROrigin3D/Main hand/Paddle"]
+transform = Transform3D(-4.37114e-08, -1, -4.37114e-08, 1, -4.37114e-08, 4.37114e-08, -4.37114e-08, -4.37114e-08, 1, 0.5, 1, -0.55)
+shape = SubResource("CylinderShape3D_li51x")
+
+[node name="BatObject" type="MeshInstance3D" parent="XROrigin3D/Main hand/Paddle"]
+transform = Transform3D(-4.37114e-08, -1, 4.37114e-08, 0, -4.37114e-08, -1, 1, -4.37114e-08, 1.91069e-15, 0.5, 1, -0.4)
+mesh = ExtResource("1_ujeg1")
+skeleton = NodePath("../../..")
+
+[node name="offhand" type="XRController3D" parent="XROrigin3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 1, -0.5)
+tracker = &"left_hand"
+script = SubResource("GDScript_kmcmn")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="XROrigin3D/offhand"]
+mesh = SubResource("PrismMesh_meo65")

@@ -1,0 +1,125 @@
+[gd_scene load_steps=18 format=3 uid="uid://coqerm208sjut"]
+
+[ext_resource type="Script" path="res://vr.cs" id="1_bq8fq"]
+[ext_resource type="Script" path="res://Ball.gd" id="2_j2kku"]
+[ext_resource type="ArrayMesh" uid="uid://diojosv376xjx" path="res://Assets/tabletennis.obj" id="2_rvmu3"]
+[ext_resource type="ArrayMesh" uid="uid://dybnpvujxwdce" path="res://Assets/tabletennisball.obj" id="3_puejs"]
+[ext_resource type="AudioStream" uid="uid://dgvtm8ppv5aoq" path="res://Assets/impact-109588.mp3" id="4_lwwp4"]
+[ext_resource type="PackedScene" uid="uid://bnsqumhgrfsrg" path="res://player.tscn" id="5_5fpav"]
+[ext_resource type="ArrayMesh" uid="uid://dsrad8k3d8dpd" path="res://Assets/tabletennisnet.obj" id="5_w6xhe"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_6uta0"]
+bounce = 0.59
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_gw151"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v4evd"]
+albedo_color = Color(0.470588, 0.160784, 0.160784, 1)
+roughness = 0.76
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ggatn"]
+material = SubResource("StandardMaterial3D_v4evd")
+size = Vector2(100, 100)
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ipsrs"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_2pouy"]
+custom_solver_bias = 1.0
+margin = 0.005
+radius = 0.02
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_fovau"]
+friction = 0.77
+bounce = 0.95
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bmofj"]
+size = Vector3(2.74, 0.04, 1.525)
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_x68ds"]
+friction = 0.64
+bounce = 0.4
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_c7ml0"]
+size = Vector3(0.005, 0.153, 1.83)
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_bq8fq")
+
+[node name="Floor" type="StaticBody3D" parent="."]
+physics_material_override = SubResource("PhysicsMaterial_6uta0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("WorldBoundaryShape3D_gw151")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("PlaneMesh_ggatn")
+skeleton = NodePath("../..")
+
+[node name="Ball" type="RigidBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.645819, 1.63164, 0)
+mass = 0.01
+physics_material_override = SubResource("PhysicsMaterial_ipsrs")
+continuous_cd = true
+max_contacts_reported = 30
+contact_monitor = true
+can_sleep = false
+linear_damp = 0.5
+script = ExtResource("2_j2kku")
+maxSpeed = 5
+
+[node name="BallObject" type="MeshInstance3D" parent="Ball"]
+mesh = ExtResource("3_puejs")
+skeleton = NodePath("../..")
+
+[node name="BallHitbox" type="CollisionShape3D" parent="Ball"]
+shape = SubResource("SphereShape3D_2pouy")
+
+[node name="AudioStreamPlayer3D" type="AudioStreamPlayer3D" parent="Ball"]
+stream = ExtResource("4_lwwp4")
+volume_db = -22.857
+
+[node name="Table" type="StaticBody3D" parent="."]
+physics_material_override = SubResource("PhysicsMaterial_fovau")
+
+[node name="TableObject" type="MeshInstance3D" parent="Table"]
+mesh = ExtResource("2_rvmu3")
+skeleton = NodePath("../..")
+
+[node name="TableHitbox" type="CollisionShape3D" parent="Table"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.74, 0)
+shape = SubResource("BoxShape3D_bmofj")
+
+[node name="Net" type="StaticBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.836, 0)
+physics_material_override = SubResource("PhysicsMaterial_x68ds")
+
+[node name="NetHitbox" type="CollisionShape3D" parent="Net"]
+shape = SubResource("BoxShape3D_c7ml0")
+
+[node name="NetObject" type="MeshInstance3D" parent="Net"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.836, 0)
+mesh = ExtResource("5_w6xhe")
+skeleton = NodePath("../..")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.45013, 0.733122, -0.509818, 0, 0.570929, 0.821, 0.892963, -0.369557, 0.256992, -2.24438, 5.74889, -0.401028)
+light_energy = 1.808
+shadow_bias = 0.403
+shadow_normal_bias = 0.0
+shadow_blur = 0.808
+directional_shadow_split_1 = 0.332
+sky_mode = 1
+
+[node name="player" parent="." instance=ExtResource("5_5fpav")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 1.95144, 0, 0)
+
+[node name="XROrigin3D" parent="player" index="0"]
+current = true
+
+[node name="offhand" parent="player/XROrigin3D" index="2"]
+script = null
+
+[connection signal="body_entered" from="Ball" to="Ball" method="_on_body_entered"]
+[connection signal="button_pressed" from="player/XROrigin3D/offhand" to="Ball" method="_on_offhand_button_pressed"]
+
+[editable path="player"]
